@@ -1,0 +1,9 @@
+[Tests]
+  [ded_corner_print]
+    type = RunApp
+    input = master_app_mechanical.i
+    check_input = True
+    capabilities = 'method=opt'
+    issues = '#66'
+  []
+[]
