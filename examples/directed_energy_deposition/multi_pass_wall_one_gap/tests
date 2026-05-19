@@ -1,0 +1,16 @@
+[Tests]
+  [ded_multi_pass_wall_one_gap]
+    type = RunApp
+    input = master_app_mechanical.i
+    check_input = True
+    capabilities = 'method=opt'
+    issues = '#66'
+  []
+  [ded_multi_pass_wall_one_gap_drl]
+    type = RunApp
+    input = thermal_drl.i
+    check_input = True
+    capabilities = 'method=opt & libtorch'
+    issues = '#66'
+  []
+[]
