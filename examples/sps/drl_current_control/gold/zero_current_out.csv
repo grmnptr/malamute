@@ -1,0 +1,4 @@
+time,applied_current_density,powder_average_temperature,powder_max_temperature,powder_min_temperature,powder_temperature_spread,pyrometer_temperature,reward,target_temperature,voltage_drop
+0,0,300,300,300,5.6843418860808e-14,300,-1.9530653351946e-31,300,0
+2,0,300,300,300,5.6843418860808e-14,300,-0.0025,312.5,0
+4,0,300,300,300,5.6843418860808e-14,300,-0.01,325,0

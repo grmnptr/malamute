@@ -1,0 +1,44 @@
+[Tests]
+  design = 'README.md'
+
+  [zero-current-episode]
+    type = CSVDiff
+    input = sps_open_loop.i
+    cli_args = "--allow-unused open_loop_current_density=0 Executioner/end_time=4 Outputs/csv/file_base='zero_current_out'"
+    csvdiff = zero_current_out.csv
+    abs_zero = 1e-10
+    requirement = 'The reduced EFAS episode shall execute with zero applied current.'
+  []
+  [heated-episode]
+    type = CSVDiff
+    input = sps_open_loop.i
+    cli_args = "--allow-unused open_loop_current_density=4e6 Executioner/end_time=4 Outputs/csv/file_base='heated_out'"
+    csvdiff = heated_out.csv
+    rel_err = 1e-8
+    requirement = 'The reduced EFAS episode shall execute with a prescribed bounded current density.'
+  []
+  [pid-episode]
+    type = RunApp
+    input = sps_pid.i
+    cli_args = "--allow-unused Executioner/end_time=4 Outputs/csv/file_base='pid_out'"
+    requirement = 'The reduced EFAS episode shall support bounded PID current control using the pyrometer signal.'
+  []
+  [ppo-smoke]
+    type = CheckFiles
+    input = sps_train.i
+    cli_args = "Samplers/environments/linear_space_items='0 0 2' Executioner/num_steps=2 Trainers/ppo/num_epochs=2 Trainers/ppo/batch_size=16 Trainers/ppo/filename_base='smoke_efas' Outputs/file_base='smoke_train_out'"
+    check_files = 'smoke_efas_control.net'
+    expect_out = 'Actor Loss:.*Critic Loss:'
+    absent_out = '(Actor|Critic) Loss:.*(nan|inf)'
+    capabilities = 'libtorch'
+    requirement = 'The reduced EFAS model shall complete a two-environment PPO smoke run and write an actor checkpoint.'
+  []
+  [ppo-reload]
+    type = RunApp
+    input = sps_evaluate.i
+    cli_args = "checkpoint=smoke_efas_control.net Outputs/file_base='smoke_eval_out'"
+    capabilities = 'libtorch'
+    prereq = ppo-smoke
+    requirement = 'The reduced EFAS model shall reload a trained actor for deterministic evaluation.'
+  []
+[]
