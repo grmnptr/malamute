@@ -1,0 +1,66 @@
+[Tests]
+  design = 'README.md'
+
+  [full-episode-mpi]
+    type = RunApp
+    input = full_episode.i
+    cli_args = 'Executioner/end_time=6'
+    min_parallel = 2
+    max_parallel = 2
+    capabilities = 'libtorch'
+    requirement = 'The full DCS-5 control episode shall complete a timestep on two MPI ranks.'
+  []
+  [simplified-episode]
+    type = RunApp
+    input = simplified_episode.i
+    cli_args = '--allow-unused Executioner/end_time=6'
+    capabilities = 'libtorch'
+    requirement = 'The simplified comparison episode shall complete on the shared time grid.'
+  []
+  [train-full-smoke]
+    type = CheckFiles
+    input = train_full.i
+    cli_args = "--allow-unused training_num_environments=1 training_ranks_per_episode=2 Executioner/num_steps=1 Trainers/ppo/num_epochs=1 Trainers/ppo/batch_size=2 Trainers/ppo/filename_base='smoke_full' Outputs/file_base='smoke_full_train' MultiApps/episodes/cli_args='Executioner/end_time=24'"
+    check_files = 'smoke_full_control.net smoke_full_control.net_best smoke_full_ctiric.net'
+    expect_out = 'Actor Loss:.*Critic Loss:'
+    absent_out = '(Actor|Critic) Loss:.*(nan|inf)'
+    min_parallel = 2
+    max_parallel = 2
+    max_time = 60
+    capabilities = 'libtorch'
+    requirement = 'The full DCS-5 model shall complete a shortened PPO update and write an actor checkpoint.'
+  []
+  [train-simplified-smoke]
+    type = CheckFiles
+    input = train_simplified.i
+    cli_args = "--allow-unused training_num_environments=1 training_ranks_per_episode=1 Executioner/num_steps=1 Trainers/ppo/num_epochs=1 Trainers/ppo/batch_size=2 Trainers/ppo/filename_base='smoke_simplified' Outputs/file_base='smoke_simplified_train' MultiApps/episodes/cli_args='Executioner/end_time=24'"
+    check_files = 'smoke_simplified_control.net smoke_simplified_control.net_best smoke_simplified_ctiric.net'
+    expect_out = 'Actor Loss:.*Critic Loss:'
+    absent_out = '(Actor|Critic) Loss:.*(nan|inf)'
+    max_time = 60
+    capabilities = 'libtorch'
+    requirement = 'The simplified model shall complete a shortened PPO update and write an actor checkpoint.'
+  []
+  [evaluate-full-trained]
+    type = RunApp
+    input = evaluate_full_trained.i
+    cli_args = "--allow-unused evaluation_checkpoint='smoke_full_control.net_best' evaluation_output_base='smoke_full_evaluation' evaluation_end_time=12 evaluation_ranks=2"
+    min_parallel = 2
+    max_parallel = 2
+    max_time = 60
+    capabilities = 'libtorch'
+    prereq = train-full-smoke
+    requirement = 'A controller trained on the full model shall reload and execute deterministically on the full model.'
+  []
+  [evaluate-simplified-trained]
+    type = RunApp
+    input = evaluate_simplified_trained.i
+    cli_args = "--allow-unused evaluation_checkpoint='smoke_simplified_control.net_best' evaluation_output_base='smoke_simplified_evaluation' evaluation_end_time=12 evaluation_ranks=2"
+    min_parallel = 2
+    max_parallel = 2
+    max_time = 60
+    capabilities = 'libtorch'
+    prereq = train-simplified-smoke
+    requirement = 'A controller trained on the simplified model shall reload and execute deterministically on the full model.'
+  []
+[]

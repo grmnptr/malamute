@@ -1357,8 +1357,8 @@ stack_with_powder = ${fparse ram_cc_sinter_punch_height + powder_height}
     secondary_conductivity = graphite_thermal_conductivity
     temperature = temperature
     contact_pressure = interface_punch_lm
-    primary_hardness = graphite_hardness
-    secondary_hardness = copper_hardness
+    primary_hardness = copper_hardness
+    secondary_hardness = graphite_hardness
     boundary = top_punch_bottom
   []
   [closed_electric_interface_powder_top_punch]
@@ -1413,21 +1413,21 @@ stack_with_powder = ${fparse ram_cc_sinter_punch_height + powder_height}
   []
   [closed_thermal_interface_top_cc_ram_spacer]
     type = GapFluxModelPressureDependentConduction
-    primary_conductivity = graphite_thermal_conductivity
+    primary_conductivity = ccfiber_thermal_conductivity
     secondary_conductivity = graphite_thermal_conductivity
     temperature = temperature
     contact_pressure = interface_sinter_spacer_lm
-    primary_hardness = graphite_hardness
+    primary_hardness = ccfiber_hardness
     secondary_hardness = graphite_hardness
     boundary = top_ram_spacer_bottom
   []
   [closed_electric_interface_top_cc_ram_spacer]
     type = GapFluxModelPressureDependentConduction
-    primary_conductivity = graphite_electrical_conductivity
+    primary_conductivity = ccfiber_electrical_conductivity
     secondary_conductivity = graphite_electrical_conductivity
     temperature = potential
     contact_pressure = interface_sinter_spacer_lm
-    primary_hardness = graphite_hardness
+    primary_hardness = ccfiber_hardness
     secondary_hardness = graphite_hardness
     boundary = top_ram_spacer_bottom
   []
