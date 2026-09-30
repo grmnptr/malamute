@@ -14,6 +14,39 @@ physical actuator range. This keeps the saved actor networks directly interchang
 The full episode includes the corrected original tutorial input rather than copying or simplifying
 its geometry, materials, or mortar interfaces. Training and evaluation disable field output.
 
+## Build on HPC
+
+Use a dedicated checkout of the `drl-mods` branch and keep libtorch inside that checkout. Replace
+the two paths below with the corresponding HPC paths.
+
+```bash
+conda activate moose-torch
+export MOOSE_DIR=/path/to/moose-drl-mods
+export MALAMUTE_DIR=/path/to/malamute
+export LIBTORCH_DIR="$MOOSE_DIR/framework/contrib/pytorch/installed"
+
+git -C "$MOOSE_DIR" switch drl-mods
+git -C "$MOOSE_DIR" pull --ff-only origin drl-mods
+
+cd "$MOOSE_DIR"
+if [ ! -f "$LIBTORCH_DIR/lib/libtorch.so" ]; then
+  scripts/update_and_rebuild_libtorch.sh
+fi
+
+./configure --with-libtorch="$LIBTORCH_DIR"
+make -C framework -j8
+make -C modules/stochastic_tools -j8
+
+cd "$MALAMUTE_DIR"
+MOOSE_DIR="$MOOSE_DIR" make -j8
+
+# Ensure that runtime loading uses the same libtorch used for compilation.
+export LD_LIBRARY_PATH="$LIBTORCH_DIR/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+```
+
+Before submitting the long jobs, verify that `malamute-opt --show-capabilities` reports
+`stochastictoolsapp = true` and a `libtorch` version.
+
 ## HPC runs
 
 Activate the `moose-torch` environment and run from this directory. The defaults use eight training
